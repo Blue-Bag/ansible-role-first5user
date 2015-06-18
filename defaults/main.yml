@@ -1,0 +1,34 @@
+---
+# Vars in this file should all be overwritten in your host_vars
+
+# crypted passwords, generated on a Linux box using:
+# echo 'import crypt,getpass; print crypt.crypt(getpass.getpass(), "$6$FIRST5")' | python -
+
+first5user_ansible_username: ansible
+
+# Default shell used for new accounts
+first5user_default_shell: '/bin/bash'
+
+
+#first5user_root_password: define in your vars
+
+#first5user_ansible_password: define in your vars
+
+# Provide FQ paths to publick keys you use
+first5user_public_ssh_keys: []
+#  - "{{ lookup('file', 'common/files/sshkeys/id_ansible.pub') }}"
+
+first5deploy_user_keys: []
+  # - { user: 'ansible', dest: 'id_rsa' ,    src: 'common/files/sshkeys/id_ansible', mode: '0400' }
+  # - { user: 'ansible', dest: 'id_rsa.pub', src: 'common/files/sshkeys/id_ansible.pub', mode: '0400' }
+
+# Default group for user (should be overridden)
+first5user_admin_group: 'anAdmin'
+
+first5user_ansible_groups:
+  - { name: "{{first5user_admin_group}}", state: 'present' }
+
+first5user_ansible_add_groups: []
+
+first5user_ansible_user_groups:
+  - sudo

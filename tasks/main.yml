@@ -1,0 +1,15 @@
+---
+# we may run first5-user as part of an initial provision
+# so as a last task in the role we set a parameter to tell us it has run
+# we only run the tasks if the parameter hasn't been set (run already this play)
+
+# - debug: msg={{ playbook_dir }}
+
+# - debug: msg="{{ item }}"
+#   with_items: first5user_public_ssh_keys
+
+# - debug: msg={{ item }}
+#   with_items: first5user_required_vars
+
+- include: user.yml
+  when: first5user_ran is not defined

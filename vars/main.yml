@@ -1,0 +1,5 @@
+---
+
+first5user_required_vars:
+  - 'first5user_root_password'
+  - 'first5user_ansible_password'

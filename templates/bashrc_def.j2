@@ -1,0 +1,41 @@
+# {{ ansible_managed }}
+# ~/.bashrc: executed by bash(1) for non-login shells.
+
+#############################################################################
+
+export PS1='\[\033[01;31m\]\u\[\033[01;33m\]@\[\033[01;36m\]\h \[\033[01;33m\]\w \[\033[01;35m\]\$ \[\033[00m\]'
+umask 022
+
+#############################################################################
+
+eval "`dircolors`"
+
+#############################################################################
+
+
+
+#############################################################################
+
+export EDITOR="vim"
+
+export HISTFILESIZE=99999999
+export HISTSIZE=99999999
+
+
+export LS_OPTIONS='--color=auto -h'
+# show date on history entries
+export HISTTIMEFORMAT="%d/%m/%y %T "
+
+#############################################################################
+
+# You may uncomment the following lines if you want `ls' to be colorized:
+export LS_OPTIONS='--human --color=always'
+# eval "`dircolors`"
+alias ls='ls $LS_OPTIONS'
+alias ll='ls $LS_OPTIONS -l'
+alias l='ls $LS_OPTIONS -lA'
+#
+# Some more alias to avoid making mistakes:
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'

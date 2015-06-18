@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: "George Boobyer"
+  description: Initial provisoin role (First5) to create Ansible user
+  company: Blue-Bag
+  license: "license (BSD, MIT)"
+  min_ansible_version: 1.4
+  platforms:
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+  categories:
+  - networking
+dependencies: []

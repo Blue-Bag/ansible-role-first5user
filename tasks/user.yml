@@ -1,0 +1,83 @@
+---
+
+- name: Check required vars defined
+  fail: msg="Variable '{{ item }}' is not defined"
+  when: item  not in hostvars[inventory_hostname]
+  with_items: first5user_required_vars
+
+
+- name: Change root password
+  user:
+    name: root
+    password: "{{ first5user_root_password }}"
+
+
+- name: Add/remove required groups
+  group:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+  with_items:
+    - "{{ first5user_ansible_groups }}"
+    - "{{ first5user_add_groups | default([]) }}"
+
+- name: Install sudo package
+  apt:
+    name: sudo
+
+- name: common | configure prompt
+  lineinfile: dest=/etc/bash.bashrc regexp="^PS1=" line="PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'" backup=yes
+  sudo: true
+  tags: common
+
+
+- name: common | copy bash config files
+  template:
+    src: bashrc_skel.j2
+    dest: /etc/skel/.bashrc
+    backup: yes
+  tags: common
+
+# TODO: Make idempotent
+# Also may best set shell to sh as low resource use and basic for ansible
+# temp removed groups as not idempotent and not needed as group
+
+- name: Add ansible user
+  user:
+    name: "{{ first5user_ansible_username }}"
+    password: "{{ first5user_ansible_password }}"
+    append: no
+    group: "{{ first5user_admin_group }}"
+    groups: "{{ first5user_ansible_user_groups | join(',') }}"
+    shell: "{{ first5user_default_shell }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+    update_password: on_create
+
+- name: Set up authorized_keys for the ansible user
+  authorized_key:
+    user: "{{ first5user_ansible_username }}"
+    key: "{{ item }}"
+  with_items: first5user_public_ssh_keys
+  sudo: true
+
+- name: Put private/public keys in place for users
+  copy:
+    src: "{{ item.src }}"
+    dest: "/home/{{ item.user }}/.ssh/{{ item.dest }}"
+    mode: "{{ item.mode|default('0600') }}"
+    owner: "{{ item.user }}"
+    group: "{{ first5user_admin_group }}"
+  with_items: first5deploy_user_keys
+
+- name: Setup vagrant user for ssh if local
+  user:
+    name: vagrant
+    shell: /bin/bash
+    group: "{{ first5user_admin_group }}"
+    append: yes
+  when: inventory_hostname in groups['local']
+
+- name: Record that we have already run User setup for this host
+  set_fact:
+    first5user_ran: true

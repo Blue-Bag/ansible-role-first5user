@@ -11,5 +11,8 @@
 # - debug: msg={{ item }}
 #   with_items: first5user_required_vars
 
+- include: init.yml
+  when: first5user_ran is not defined
+
 - include: user.yml
   when: first5user_ran is not defined

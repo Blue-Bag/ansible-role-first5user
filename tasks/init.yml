@@ -1,0 +1,16 @@
+---
+# https://t37.net/documenting-your-ansible-roles-interface-and-making-other-people-s-life-easier.html
+
+- assert:
+    that:
+      - first5user_root_password != ''
+      - first5user_ansible_password != ''
+      # - first5user_root_password in hostvars[inventory_hostname]
+      # - first5user_ansible_password in hostvars[inventory_hostname]
+  tags: ['check_vars']
+
+# - name: Check required vars defined
+#   fail: msg="Variable '{{ item }}' is not defined"
+#   when: item  not in hostvars[inventory_hostname]
+#   with_items: first5user_required_vars
+

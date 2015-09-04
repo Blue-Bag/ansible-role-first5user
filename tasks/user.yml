@@ -17,12 +17,19 @@
 - name: Install sudo package
   apt:
     name: sudo
+  when: ansible_os_family == 'Debian'
+
+- name: Install sudo package
+  yum:
+    name: sudo
+  when: ansible_os_family == 'RedHat'
+
 
 - name: common | configure prompt
   lineinfile: dest=/etc/bash.bashrc regexp="^PS1=" line="PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'" backup=yes
   sudo: true
   tags: common
-
+  when: ansible_os_family == 'Debian'
 
 - name: common | copy bash config files
   template:
@@ -30,6 +37,7 @@
     dest: /etc/skel/.bashrc
     backup: yes
   tags: common
+  when: ansible_os_family == 'Debian'
 
 # TODO: Make idempotent
 # Also may best set shell to sh as low resource use and basic for ansible
@@ -54,7 +62,6 @@
     key: "{{ lookup('file', item) }}"
   with_items: first5user_public_ssh_keys
   sudo: true
-
 
 
 - name: Put private/public keys in place for users

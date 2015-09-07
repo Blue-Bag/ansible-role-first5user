@@ -14,12 +14,12 @@
     - "{{ first5user_ansible_groups }}"
     - "{{ first5user_add_groups | default([]) }}"
 
-- name: Install sudo package
+- name: Install sudo package | Debian
   apt:
     name: sudo
   when: ansible_os_family == 'Debian'
 
-- name: Install sudo package
+- name: Install sudo package | RedHat
   yum:
     name: sudo
   when: ansible_os_family == 'RedHat'
@@ -87,6 +87,14 @@
     dest=/etc/sudoers
     regexp='^{{ first5user_ansible_username }}'
     line='{{ first5user_ansible_username }} ALL=(ALL) NOPASSWD: ALL'
+    state=present
+    validate='visudo -cf %s'
+
+- name: Add Ansible user to the sudoers not requiring tty.
+  lineinfile: >
+    dest=/etc/sudoers
+    insertafter="^Defaults    requiretty"
+    line='Defaults:{{ first5user_ansible_username }}  !requiretty'
     state=present
     validate='visudo -cf %s'
 

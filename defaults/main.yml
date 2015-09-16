@@ -14,7 +14,7 @@ first5user_default_shell: '/bin/bash'
 
 #first5user_ansible_password: define in your vars
 
-# Provide FQ paths to publick keys you use
+# Provide FQ paths to public keys you use
 first5user_public_ssh_keys: []
 #  - "{{ lookup('file', 'common/files/sshkeys/id_ansible.pub') }}"
 

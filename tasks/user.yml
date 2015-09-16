@@ -63,6 +63,16 @@
   with_items: first5user_public_ssh_keys
   sudo: true
 
+- name: create users ssh directory
+  file:
+    path: "/home/{{ item.user }}/.ssh"
+    state: directory
+    owner: "{{ item.user }}"
+    group: "{{ first5user_admin_group }}"
+    mode: 0700
+    recurse: no
+  with_items: first5deploy_user_keys
+  sudo: true
 
 - name: Put private/public keys in place for users
   copy:

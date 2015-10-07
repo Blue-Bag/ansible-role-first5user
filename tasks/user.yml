@@ -4,6 +4,7 @@
   user:
     name: root
     password: "{{ first5user_root_password }}"
+  when: first5user_changerootpwd
 
 
 - name: Add/remove required groups

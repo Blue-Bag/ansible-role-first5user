@@ -6,6 +6,8 @@
 
 first5user_ansible_username: ansible
 
+first5user_changerootpwd: True
+
 # Default shell used for new accounts
 first5user_default_shell: '/bin/bash'
 

@@ -13,7 +13,7 @@
     state: "{{ item.state }}"
   with_items:
     - "{{ first5user_ansible_groups }}"
-    - "{{ first5user_add_groups | default([]) }}"
+    - "{{ first5user_ansible_add_groups | default([]) }}"
 
 - name: Install sudo package | Debian
   apt:

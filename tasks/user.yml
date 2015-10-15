@@ -108,7 +108,7 @@
            removes=/home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key
   with_items: first5deploy_user_private_keys
 
-- name: Rsetore permissions on key files
+- name: Restore permissions on key files
   file:
     path: "/home/{{ item.user }}/.ssh/{{ item.dest }}"
     owner: "{{ item.user }}"

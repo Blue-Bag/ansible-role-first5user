@@ -24,6 +24,8 @@ first5deploy_user_keys: []
   # - { user: 'ansible', dest: 'id_rsa' ,    src: 'common/files/sshkeys/id_ansible', mode: '0400' }
   # - { user: 'ansible', dest: 'id_rsa.pub', src: 'common/files/sshkeys/id_ansible.pub', mode: '0400' }
 
+first5deploy_user_private_keys: []
+
 # Default group for user (should be overridden)
 first5user_admin_group: 'anAdmin'
 

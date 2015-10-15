@@ -72,10 +72,12 @@
     group: "{{ first5user_admin_group }}"
     mode: 0700
     recurse: no
-  with_items: first5deploy_user_keys
+  with_items:
+    - "{{first5deploy_user_keys}}"
+    - "{{first5deploy_user_private_keys}}"
   sudo: true
 
-- name: Put private/public keys in place for users
+- name: Put public keys in place for users
   copy:
     src: "{{ item.src }}"
     dest: "/home/{{ item.user }}/.ssh/{{ item.dest }}"
@@ -83,6 +85,38 @@
     owner: "{{ item.user }}"
     group: "{{ first5user_admin_group }}"
   with_items: first5deploy_user_keys
+
+# this is for when you have encrypted id_rsa keys in your repo
+- name: Put private keys in place for users
+  copy:
+    src: "{{ item.src }}"
+    dest: "/home/{{ item.user }}/.ssh/{{ item.dest }}"
+    mode: "{{ item.mode|default('0600') }}"
+    owner: "{{ item.user }}"
+    group: "{{ first5user_admin_group }}"
+  with_items: first5deploy_user_private_keys
+
+
+- name: Decrypt the private key
+  command: openssl aes-256-cbc -salt -a -d -in /home/{{ item.user }}/.ssh/{{ item.dest }}
+           -out /home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key -k {{ ssh_key_password }}
+           creates=/home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key
+  with_items: first5deploy_user_private_keys
+
+- name: Rename the decrypted private key
+  command: mv /home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key /home/{{ item.user }}/.ssh/{{ item.dest }}
+           removes=/home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key
+  with_items: first5deploy_user_private_keys
+
+- name: Rsetore permissions on key files
+  file:
+    path: "/home/{{ item.user }}/.ssh/{{ item.dest }}"
+    owner: "{{ item.user }}"
+    group: "{{ first5user_admin_group }}"
+    mode: "{{ item.mode|default('0600') }}"
+  changed_when: False
+  with_items: first5deploy_user_private_keys
+  sudo: true
 
 - name: Setup vagrant user for ssh if local
   user:

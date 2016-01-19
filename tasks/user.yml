@@ -48,7 +48,7 @@
   user:
     name: "{{ first5user_ansible_username }}"
     password: "{{ first5user_ansible_password }}"
-    append: no
+    append: "{{ first5user_append_groups }}"
     group: "{{ first5user_admin_group }}"
     groups: "{{ first5user_ansible_user_groups | join(',') }}"
     shell: "{{ first5user_default_shell }}"

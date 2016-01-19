@@ -36,3 +36,5 @@ first5user_ansible_add_groups: []
 
 first5user_ansible_user_groups:
   - sudo
+
+first5user_append_groups: yes

@@ -60,7 +60,8 @@
 - name: Set up authorized_keys for the ansible user
   authorized_key:
     user: "{{ first5user_ansible_username }}"
-    key: "{{ lookup('file', item) }}"
+    key: "{{ lookup('file', item.file) }}"
+    state: "{{ item.state | default('present')}}"
   with_items: first5user_public_ssh_keys
   sudo: true
 

@@ -29,10 +29,10 @@ Usage
 ```
   - hosts: servers
   gather_facts: true
-  sudo: true
+  become: true
 
   roles:
-    - { role: ansible-role-first5user, tags: ["provision", "user"], sudo: true}
+    - { role: ansible-role-first5user, tags: ["provision", "user"], become: true}
 ```
 
 

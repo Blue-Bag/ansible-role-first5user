@@ -28,7 +28,7 @@
 
 - name: common | configure prompt
   lineinfile: dest=/etc/bash.bashrc regexp="^PS1=" line="PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'" backup=yes
-  sudo: true
+  become: true
   tags: common
   when: ansible_os_family == 'Debian'
 
@@ -63,7 +63,7 @@
     key: "{{ lookup('file', item.file) }}"
     state: "{{ item.state | default('present')}}"
   with_items: first5user_public_ssh_keys
-  sudo: true
+  become: true
 
 - name: create users ssh directory
   file:
@@ -76,7 +76,7 @@
   with_items:
     - "{{first5deploy_user_keys}}"
     - "{{first5deploy_user_private_keys}}"
-  sudo: true
+  become: true
 
 - name: Put public keys in place for users
   copy:
@@ -117,7 +117,7 @@
     mode: "{{ item.mode|default('0600') }}"
   changed_when: False
   with_items: first5deploy_user_private_keys
-  sudo: true
+  become: true
 
 - name: Setup vagrant user for ssh if local
   user:

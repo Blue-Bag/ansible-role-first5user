@@ -6,6 +6,14 @@
     password: "{{ first5user_root_password }}"
   when: first5user_changerootpwd
 
+- name: Put history timestamp on for root
+  lineinfile:
+    dest: "/root/.bashrc"
+    regexp: "^export HISTTIMEFORMAT"
+    line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'
+    backup: yes
+  become: true
+  tags: [ssh_bash]
 
 - name: Add/remove required groups
   group:
@@ -64,6 +72,7 @@
     state: "{{ item.state | default('present')}}"
   with_items: "{{first5user_public_ssh_keys}}"
   become: true
+  tags: [user_ssh_keys]
 
 - name: create users ssh directory
   file:
@@ -86,6 +95,7 @@
     owner: "{{ item.user }}"
     group: "{{ first5user_admin_group }}"
   with_items: "{{first5deploy_user_keys}}"
+
 
 # this is for when you have encrypted id_rsa keys in your repo
 - name: Put private keys in place for users
@@ -144,6 +154,3 @@
     state=present
     validate='visudo -cf %s'
 
-- name: Record that we have already run User setup for this host
-  set_fact:
-    first5user_ran: true

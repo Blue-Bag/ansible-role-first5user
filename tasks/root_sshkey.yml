@@ -1,0 +1,25 @@
+---
+
+- name: Generate SSH keys for root
+  shell: ssh-keygen -b 4096 -t rsa -f /root/.ssh/id_rsa -q -N "" -C "{{ first5user_ssh_comment }}"
+  args:
+    creates: /root/.ssh/id_rsa
+  when: first5user_ssh_createroot
+
+- name: Generate RFC4716 SSH keys for root
+  shell: ssh-keygen -e -f /root/.ssh/id_rsa.pub | grep -v "Comment:" > /root/.ssh/id_rsa_rfc.pub
+  args:
+    creates: /root/.ssh/id_rsa_rfc.pub
+  when: first5user_ssh_createroot
+
+- name: Generate RFC4716 SSH keys for ansible
+  shell: ssh-keygen -e -f /home/ansible/.ssh/id_rsa.pub | grep -v "Comment:" > /home/ansible/.ssh/id_rsa_rfc.pub
+  args:
+    creates: /home/ansible/.ssh/id_rsa_rfc.pub
+  when: first5user_ssh_createroot
+
+# - name: add authorized_keys SSH keys for ansible
+#   shell: cat /home/ansible/.ssh/id_rsa_rfc.pub >> /root/.ssh/backup_authorized_keys
+
+#   when: first5user_ssh_createroot
+

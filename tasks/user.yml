@@ -6,25 +6,7 @@
     password: "{{ first5user_root_password }}"
   when: first5user_changerootpwd
 
-# - name: Put history timestamp on for root
-#   lineinfile:
-#     dest: "/root/.bashrc"
-#     regexp: "^export HISTTIMEFORMAT"
-#     line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'
-#     backup: yes
-#   become: true
-#   tags: [ssh_bash]
-
-# - name: Remove History dupes for root
-#   lineinfile:
-#     dest: "/root/.bashrc"
-#     regexp: "^HISTCONTROL="
-#     line: 'HISTCONTROL=ignoreboth:erasedups'
-#     backup: yes
-#   become: true
-#   tags: [ssh_bash]
-
-- name: Remove History dupes for root
+- name: History configuration for root
   lineinfile:
     dest: "/root/.bashrc"
     regexp: "{{ item.regexp }}"

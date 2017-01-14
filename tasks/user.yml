@@ -39,7 +39,11 @@
 
 
 - name: common | configure prompt
-  lineinfile: dest=/etc/bash.bashrc regexp="^PS1=" line="PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'" backup=yes
+  lineinfile: 
+    dest: '/etc/bash.bashrc'
+    regexp: "^PS1="
+    line: "PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'"
+    backup: yes
   become: true
   tags: common
   when: ansible_os_family == 'Debian'

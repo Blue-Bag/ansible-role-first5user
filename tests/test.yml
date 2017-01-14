@@ -1,5 +1,9 @@
 ---
 - hosts: all
 
+  vars:
+    first5user_root_password: 'wzqdxXdXgWKp+RXaxe8UDy'
+    first5user_ansible_password: 'wzqdxXdXgWKp+RXaxe8UDy'
+
   roles:
     - role_under_test

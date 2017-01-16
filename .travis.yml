@@ -22,6 +22,7 @@ env:
     init: /lib/systemd/systemd
     run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 
+
 # Tell Travis to start Docker when it brings up an environment.
 services:
   - docker
@@ -44,5 +45,16 @@ script:
   # Test the Ansible role.
   - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml'
 
+ # Test role idempotence.
+  - idempotence=$(mktemp)
+  - docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml | tee -a ${idempotence}
+  - >
+    tail ${idempotence}
+    | grep -q 'changed=0.*failed=0'
+    && (echo 'Idempotence test: pass' && exit 0)
+    || (echo 'Idempotence test: fail' && exit 1)
+
+
 notifications:
-  # Notify Ansible Galaxy when a role builds successfully.
+  slack:
+    secure: Vqain3+LwfOBkWqAtm+7UqXpSz0S5pAnq3mgb6w4voL0KoDcsBLnr+1TfH9kWIkKBMi8ZXIa7JKMtsjKzbCNywY6TJGS5uWDU4u9KibY/3hMe2ZmSamaVa9GG3Pg0OmF41zdoOI+nfABFZO8MQ47scexgUrgCVgxsoQs2dFVpsi2wYxI5GTESGitEErg1JACin8pX608EUsAE4MOAp6VwJrb+0r1wJLy9HkyG6PPN8T7PvjVUIcBMVpbW9mdQ0gVXH+DK3M674h4q3PR0W7Yw/jkdKS1pq27nw17WNpaIBfog5+tE+/JTFF5QZeqweW7X9z3nj9n3muwbnP3sS11TBA/7bJYeJq0vcnZR/zuS3MT8lTdPnRN4JVF4niamwOl9OigBB5xOo9xEMtvwVIk5b2TMyaLeBC4GrR+V+o6FEdmuFTXlcA0U9JwC5j+ua5IEiusyJtljgB437GAlxmygq8lUZa+AI0XqKGfD1DWqHkKHfDENP85s3nUtiI0C80a49/maDdYN2zeuNflnnubAGgJA0XZyMuD8uFbQidmox4KVfUk4wizwucYFQFBIpsut38io3F+EvFW5Vc4pRau4TF0HjYH4xBEuxRHU7lgP1VzDNsYr26qqj4meAvZdMJ0/ltK8/bfFDns9uEr6Y1Us3FSwCwfFoIJ+Z+Q9tVHmuE=

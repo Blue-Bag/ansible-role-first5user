@@ -1,5 +1,6 @@
 BB First 5 User setup
 =====================
+[![Build Status](https://travis-ci.org/Blue-Bag/ansible-role-first5user.svg?branch=master)](https://travis-ci.org/Blue-Bag/ansible-role-first5user)
 
 Ansible role to create basic initial user and env setup
 Part of the Blue-Bag First 5 set of roles.

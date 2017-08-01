@@ -69,6 +69,20 @@
     ssh_key_file: .ssh/id_rsa
     update_password: on_create
 
+- name: common | copy bash config files
+  template:
+    src: "{{ item.src }}"
+    dest: "/home/{{ first5user_ansible_username }}/{{ item.dest}}"
+    backup: yes
+    owner: "{{ first5user_ansible_username }}"
+    group: "{{ first5user_admin_group }}"
+    mode: 0644
+  with_items:
+     - { src: 'bashrc_skel.j2', dest: '.bashrc'}
+     - { src: 'bash_profile.j2', dest: '.bash_profile'}
+  tags: common
+  when: ansible_os_family == 'Debian'
+
 - name: Set up authorized_keys for the ansible user
   authorized_key:
     user: "{{ first5user_ansible_username }}"

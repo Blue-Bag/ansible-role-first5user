@@ -1,0 +1,45 @@
+---
+# NOT TESTED YET
+
+- name: Add users | create users, shell, home dirs
+  user:
+    name: "{{ item.username }}"
+    password: "{{ first5user_ansible_password }}"
+    createhome: yes
+    append: yes
+    group: "{{ item_main_group }}"
+    groups: "{{ item.groups | join(',') }}"
+    shell: "{{ first5user_default_shell }}"
+    generate_ssh_key: no
+    update_password: on_create
+    comment: 'created by ansible'
+  with_items: '{{ssh_users}}'
+
+
+
+- name: Setup | authorized key upload
+  authorized_key:
+    user:  {{ item.username }}
+    key: "{{ lookup('file', 'pub_keys/{{ item.username }}.pub') }}"
+  with_items: '{{ ssh_users}}'
+
+
+- name: Sudoers | update sudoers file and validate
+  lineinfile: >
+    dest: /etc/sudoers
+    regexp: '^{{ item.username }}'
+    line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    validate: 'visudo -cf %s'
+    insertafter: EOF
+  with_items: ssh_users
+  when: item.use_sudo == True
+
+- name: Add Ansible user to the sudoers not requiring tty.
+  lineinfile: >
+    dest: /etc/sudoers
+    insertafter: "^Defaults    requiretty"
+    line: "Defaults:{{ item.username }}  !requiretty"
+    state: present
+    validate: 'visudo -cf %s'
+  with_items: ssh_users

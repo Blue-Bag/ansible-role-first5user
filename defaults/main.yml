@@ -41,3 +41,14 @@ first5user_append_groups: yes
 
 first5user_ssh_createroot: False
 first5user_ssh_comment: 'root@ansible-server'
+
+# first5user_ssh_users:
+#    - name: Joe Bloggs
+#      username: joebloggs
+#      main_group: bbAdmin
+#      groups:
+#        -  users
+#        -  www-data
+#      password: 'jhghkj'
+#      use_sudo: True
+#      key: "{{ inventory_dir + '/files/sshkeys/joebloggs.pub' }}"

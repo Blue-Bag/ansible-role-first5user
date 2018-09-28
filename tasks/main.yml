@@ -9,6 +9,9 @@
 - include: user.yml
   when: first5user_ran is not defined
 
+- include: otherusers.yml
+  when: first5user_ran is not defined
+
 - include: root_sshkey.yml
 
 - name: Record that we have already run User setup for this host

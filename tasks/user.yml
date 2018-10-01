@@ -168,7 +168,7 @@
 - name: Add Ansible user to the sudoers not requiring tty.
   lineinfile: >
     dest=/etc/sudoers
-    regexp="^Defaults{{ first5user_ansible_username }}"
+    regexp="^Defaults:{{ first5user_ansible_username }}"
     line='Defaults:{{ first5user_ansible_username }}  !requiretty'
     state=present
     validate='visudo -cf %s'

@@ -10,7 +10,7 @@
   when: first5user_ran is not defined
 
 - include: otherusers.yml
-  when: first5user_ran is not defined
+  when: first5user_ran is not defined and (first5user_ssh_users | length > 0)
 
 - include: root_sshkey.yml
 

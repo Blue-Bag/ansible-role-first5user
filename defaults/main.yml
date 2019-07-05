@@ -11,6 +11,7 @@ first5user_changerootpwd: True
 # Default shell used for new accounts
 first5user_default_shell: '/bin/bash'
 
+default_umask: '027'
 
 #first5user_root_password: define in your vars
 

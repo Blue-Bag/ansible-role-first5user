@@ -13,4 +13,3 @@
 #   fail: msg="Variable '{{ item }}' is not defined"
 #   when: item  not in hostvars[inventory_hostname]
 #   with_items: first5user_required_vars
-

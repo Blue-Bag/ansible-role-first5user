@@ -16,7 +16,7 @@
   with_items:
      - {regexp: "^export HISTTIMEFORMAT", line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'}
      - {regexp: "^HISTCONTROL=", line: 'HISTCONTROL=ignoreboth:erasedups'}
-  tags: [ssh_bash]
+  tags: [user,ssh_bash]
 
 
 - name: Add/remove required groups
@@ -90,7 +90,7 @@
     state: "{{ item.state | default('present')}}"
   with_items: "{{first5user_public_ssh_keys}}"
   become: true
-  tags: [user_ssh_keys]
+  tags: [user,user_ssh_keys]
 
 - name: create users ssh directory
   file:
@@ -172,4 +172,3 @@
     line='Defaults:{{ first5user_ansible_username }}  !requiretty'
     state=present
     validate='visudo -cf %s'
-

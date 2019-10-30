@@ -69,6 +69,14 @@
     ssh_key_file: .ssh/id_rsa
     update_password: on_create
 
+# to_do: Create a task that sets up the umask for the ansible user
+# allowing a more restrictive umask for the system
+
+- name: Override the default user umask
+  set_fact:
+    user_umask: "{{ first5user_ansible_user_umask }}"
+  when: first5user_ansible_user_umask != default_umask
+
 - name: common | copy bash config files
   template:
     src: "{{ item.src }}"

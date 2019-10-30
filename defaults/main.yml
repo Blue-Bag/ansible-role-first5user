@@ -11,7 +11,8 @@ first5user_changerootpwd: True
 # Default shell used for new accounts
 first5user_default_shell: '/bin/bash'
 
-default_umask: '027'
+default_umask: '022'
+first5user_ansible_user_umask: "{{ default_umask }}"
 
 #first5user_root_password: define in your vars
 

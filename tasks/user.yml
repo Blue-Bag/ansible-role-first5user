@@ -16,7 +16,7 @@
   with_items:
      - {regexp: "^export HISTTIMEFORMAT", line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'}
      - {regexp: "^HISTCONTROL=", line: 'HISTCONTROL=ignoreboth:erasedups'}
-  tags: [ssh_bash]
+  tags: [user,ssh_bash]
 
 
 - name: Add/remove required groups
@@ -69,6 +69,14 @@
     ssh_key_file: .ssh/id_rsa
     update_password: on_create
 
+# to_do: Create a task that sets up the umask for the ansible user
+# allowing a more restrictive umask for the system
+
+- name: Override the default user umask
+  set_fact:
+    user_umask: "{{ first5user_ansible_user_umask }}"
+  when: first5user_ansible_user_umask != default_umask
+
 - name: common | copy bash config files
   template:
     src: "{{ item.src }}"
@@ -90,7 +98,7 @@
     state: "{{ item.state | default('present')}}"
   with_items: "{{first5user_public_ssh_keys}}"
   become: true
-  tags: [user_ssh_keys]
+  tags: [user,user_ssh_keys]
 
 - name: create users ssh directory
   file:
@@ -155,7 +163,8 @@
     append: yes
   when: inventory_hostname in groups['local']
 
-
+# might be better to create these in a sudoers.d folder
+# and uncomment the incude
 - name: Add Ansible user to the passwordless sudoers.
   lineinfile: >
     dest=/etc/sudoers
@@ -167,8 +176,7 @@
 - name: Add Ansible user to the sudoers not requiring tty.
   lineinfile: >
     dest=/etc/sudoers
-    insertafter="^Defaults    requiretty"
+    regexp="^Defaults:{{ first5user_ansible_username }}"
     line='Defaults:{{ first5user_ansible_username }}  !requiretty'
     state=present
     validate='visudo -cf %s'
-

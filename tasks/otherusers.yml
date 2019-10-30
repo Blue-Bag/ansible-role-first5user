@@ -1,0 +1,50 @@
+---
+# NOT TESTED YET
+
+- name: Add users | create users, shell, home dirs
+  user:
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    # generate new password
+    createhome: yes
+    append: yes
+    group: "{{ item.main_group }}"
+    groups: "{{ item.groups | join(',') }}"
+    shell: "{{ first5user_default_shell }}"
+    generate_ssh_key: no
+    update_password: on_create
+    comment: 'created by ansible'
+  with_items: '{{first5user_ssh_users}}'
+
+- name: Setup other users | authorized key upload
+  authorized_key:
+    user:  "{{ item.0.username }}"
+    key: "{{ lookup('file', item.1.keyfile) }}"
+    state: "{{ item.1.state | default('present')}}"
+    manage_dir: yes
+  with_subelements:
+    - "{{ first5user_ssh_users}}"
+    - authorized
+  become: true
+  tags: [user,user_ssh_keys]
+
+- name: Sudoers | update sudoers file and validate
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^{{ item.username }}'
+    line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    validate: 'visudo -cf %s'
+    insertafter: EOF
+  with_items: '{{first5user_ssh_users}}'
+  when: item.use_sudo == True
+
+
+- name: Add other users to the sudoers not requiring tty.
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "^Defaults:{{  item.username }}"
+    line: "Defaults:{{ item.username }}  !requiretty"
+    state: present
+    validate: 'visudo -cf %s'
+  with_items: '{{first5user_ssh_users}}'

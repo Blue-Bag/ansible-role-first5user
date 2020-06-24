@@ -6,7 +6,7 @@
 
 first5user_ansible_username: ansible
 
-first5user_changerootpwd: True
+first5user_changerootpwd: true
 
 # Default shell used for new accounts
 first5user_default_shell: '/bin/bash'
@@ -14,17 +14,17 @@ first5user_default_shell: '/bin/bash'
 default_umask: '022'
 first5user_ansible_user_umask: "{{ default_umask }}"
 
-#first5user_root_password: define in your vars
+# first5user_root_password: define in your vars
 
-#first5user_ansible_password: define in your vars
+# first5user_ansible_password: define in your vars
 
 # Provide FQ paths to public keys you use
 first5user_public_ssh_keys: []
 #  - "{{ lookup('file', 'common/files/sshkeys/id_ansible.pub') }}"
 
 first5deploy_user_keys: []
-  # - { user: 'ansible', dest: 'id_rsa' ,    src: 'common/files/sshkeys/id_ansible', mode: '0400' }
-  # - { user: 'ansible', dest: 'id_rsa.pub', src: 'common/files/sshkeys/id_ansible.pub', mode: '0400' }
+# - {user: 'ansible', dest: 'id_rsa' ,    src: 'common/files/sshkeys/id_ansible', mode: '0400'}
+# - {user: 'ansible', dest: 'id_rsa.pub', src: 'common/files/sshkeys/id_ansible.pub', mode: '0400'}
 
 first5deploy_user_private_keys: []
 
@@ -32,16 +32,16 @@ first5deploy_user_private_keys: []
 first5user_admin_group: 'anAdmin'
 
 first5user_ansible_groups:
-  - { name: "{{first5user_admin_group}}", state: 'present' }
+  - {name: "{{first5user_admin_group}}", state: 'present'}
 
 first5user_ansible_add_groups: []
 
 first5user_ansible_user_groups:
   - sudo
 
-first5user_append_groups: yes
+first5user_append_groups: true
 
-first5user_ssh_createroot: False
+first5user_ssh_createroot: false
 first5user_ssh_comment: 'root@ansible-server'
 
 first5user_ssh_users: []

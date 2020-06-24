@@ -11,12 +11,12 @@
     dest: "/root/.bashrc"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-    backup: yes
+    backup: true
   become: true
   with_items:
-     - {regexp: "^export HISTTIMEFORMAT", line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'}
-     - {regexp: "^HISTCONTROL=", line: 'HISTCONTROL=ignoreboth:erasedups'}
-  tags: [user,ssh_bash]
+    - {regexp: "^export HISTTIMEFORMAT", line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'}
+    - {regexp: "^HISTCONTROL=", line: 'HISTCONTROL=ignoreboth:erasedups'}
+  tags: [user, ssh_bash]
 
 
 - name: Add/remove required groups
@@ -39,7 +39,11 @@
 
 
 - name: common | configure prompt
-  lineinfile: dest=/etc/bash.bashrc regexp="^PS1=" line="PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'" backup=yes
+  lineinfile:
+    dest: /etc/bash.bashrc
+    regexp: "^PS1="
+    line: PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
+    backup: true
   become: true
   tags: common
   when: ansible_os_family == 'Debian'
@@ -48,7 +52,7 @@
   template:
     src: bashrc_skel.j2
     dest: /etc/skel/.bashrc
-    backup: yes
+    backup: true
   tags: common
   when: ansible_os_family == 'Debian'
 
@@ -64,7 +68,7 @@
     group: "{{ first5user_admin_group }}"
     groups: "{{ first5user_ansible_user_groups | join(',') }}"
     shell: "{{ first5user_default_shell }}"
-    generate_ssh_key: yes
+    generate_ssh_key: true
     ssh_key_bits: 2048
     ssh_key_file: .ssh/id_rsa
     update_password: on_create
@@ -80,14 +84,14 @@
 - name: common | copy bash config files
   template:
     src: "{{ item.src }}"
-    dest: "/home/{{ first5user_ansible_username }}/{{ item.dest}}"
-    backup: yes
+    dest: "/home/{{ first5user_ansible_username }}/{{ item.dest }}"
+    backup: true
     owner: "{{ first5user_ansible_username }}"
     group: "{{ first5user_admin_group }}"
     mode: 0644
   with_items:
-     - { src: 'bashrc_skel.j2', dest: '.bashrc'}
-     - { src: 'bash_profile.j2', dest: '.bash_profile'}
+    - {src: 'bashrc_skel.j2', dest: '.bashrc'}
+    - {src: 'bash_profile.j2', dest: '.bash_profile'}
   tags: common
   when: ansible_os_family == 'Debian'
 
@@ -95,10 +99,10 @@
   authorized_key:
     user: "{{ first5user_ansible_username }}"
     key: "{{ lookup('file', item.file) }}"
-    state: "{{ item.state | default('present')}}"
-  with_items: "{{first5user_public_ssh_keys}}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ first5user_public_ssh_keys }}"
   become: true
-  tags: [user,user_ssh_keys]
+  tags: [user, user_ssh_keys]
 
 - name: create users ssh directory
   file:
@@ -107,10 +111,10 @@
     owner: "{{ item.user }}"
     group: "{{ first5user_admin_group }}"
     mode: 0700
-    recurse: no
+    recurse: false
   with_items:
-    - "{{first5deploy_user_keys}}"
-    - "{{first5deploy_user_private_keys}}"
+    - "{{ first5deploy_user_keys }}"
+    - "{{ first5deploy_user_private_keys }}"
   become: true
 
 - name: Put public keys in place for users
@@ -120,7 +124,7 @@
     mode: "{{ item.mode|default('0600') }}"
     owner: "{{ item.user }}"
     group: "{{ first5user_admin_group }}"
-  with_items: "{{first5deploy_user_keys}}"
+  with_items: "{{ first5deploy_user_keys }}"
 
 
 # this is for when you have encrypted id_rsa keys in your repo
@@ -131,19 +135,19 @@
     mode: "{{ item.mode|default('0600') }}"
     owner: "{{ item.user }}"
     group: "{{ first5user_admin_group }}"
-  with_items: "{{first5deploy_user_private_keys}}"
+  with_items: "{{ first5deploy_user_private_keys }}"
 
 
 - name: Decrypt the private key
   command: openssl aes-256-cbc -salt -a -d -in /home/{{ item.user }}/.ssh/{{ item.dest }}
            -out /home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key -k {{ ssh_key_password }}
            creates=/home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key
-  with_items: "{{first5deploy_user_private_keys}}"
+  with_items: "{{ first5deploy_user_private_keys }}"
 
 - name: Rename the decrypted private key
   command: mv /home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key /home/{{ item.user }}/.ssh/{{ item.dest }}
            removes=/home/{{ item.user }}/.ssh/{{ item.dest }}-decrypted.key
-  with_items: "{{first5deploy_user_private_keys}}"
+  with_items: "{{ first5deploy_user_private_keys }}"
 
 - name: Restore permissions on key files
   file:
@@ -151,8 +155,8 @@
     owner: "{{ item.user }}"
     group: "{{ first5user_admin_group }}"
     mode: "{{ item.mode|default('0600') }}"
-  changed_when: False
-  with_items: "{{first5deploy_user_private_keys}}"
+  changed_when: false
+  with_items: "{{ first5deploy_user_private_keys }}"
   become: true
 
 - name: Setup vagrant user for ssh if local
@@ -160,23 +164,23 @@
     name: vagrant
     shell: /bin/bash
     group: "{{ first5user_admin_group }}"
-    append: yes
+    append: true
   when: inventory_hostname in groups['local']
 
 # might be better to create these in a sudoers.d folder
 # and uncomment the incude
 - name: Add Ansible user to the passwordless sudoers.
-  lineinfile: >
-    dest=/etc/sudoers
-    regexp='^{{ first5user_ansible_username }}'
-    line='{{ first5user_ansible_username }} ALL=(ALL) NOPASSWD: ALL'
-    state=present
-    validate='visudo -cf %s'
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "^{{ first5user_ansible_username }}"
+    line: "{{ first5user_ansible_username }} ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    validate: 'visudo -cf %s'
 
 - name: Add Ansible user to the sudoers not requiring tty.
-  lineinfile: >
-    dest=/etc/sudoers
-    regexp="^Defaults:{{ first5user_ansible_username }}"
-    line='Defaults:{{ first5user_ansible_username }}  !requiretty'
-    state=present
-    validate='visudo -cf %s'
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "^Defaults:{{ first5user_ansible_username }}"
+    line: "Defaults:{{ first5user_ansible_username }}  !requiretty"
+    state: present
+    validate: 'visudo -cf %s'

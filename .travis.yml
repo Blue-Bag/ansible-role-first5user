@@ -1,60 +1,28 @@
 ---
-# We need sudo for some of the Docker commands.
-sudo: required
+
+language: python
+services: docker
 
 env:
-  # - distro: centos7
-  #   init: /usr/lib/systemd/systemd
-  #   run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
-  # - distro: centos6
-  #   init: /sbin/init
-  #   run_opts: ""
-  # - distro: fedora24
-  #   init: /usr/lib/systemd/systemd
-  #   run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
-  - distro: ubuntu1604
-    init: /lib/systemd/systemd
-    run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
-  - distro: ubuntu1404
-    init: /sbin/init
-    run_opts: ""
-  - distro: debian8
-    init: /lib/systemd/systemd
-    run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+  global:
+    - ROLE_NAME: first5user
+  matrix:
+    - MOLECULE_DISTRO: ubuntu1804
+    - MOLECULE_DISTRO: debian9
 
-
-# Tell Travis to start Docker when it brings up an environment.
-services:
-  - docker
-
-before_install:
-  # Pull container from Docker Hub.
-  - 'docker pull geerlingguy/docker-${distro}-ansible:latest'
+install:
+  # Install test dependencies.
+  - pip install molecule yamllint ansible-lint docker
 
 script:
-  # Create a random file to store the container ID.
-  - container_id=$(mktemp)
+  # Run tests.
+  - molecule test
 
-  # Run container detached, with our role mounted inside.
-  - 'docker run --detach --volume="${PWD}":/etc/ansible/roles/role_under_test:ro ${run_opts} geerlingguy/docker-${distro}-ansible:latest "${init}" > "${container_id}"'
+# notifications:
+#   webhooks: https://galaxy.ansible.com/api/v1/notifications/
 
-
-  # Ansible syntax check.
-  - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml --syntax-check'
-
-  # Test the Ansible role.
-  - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml'
-
- # Test role idempotence.
-  - idempotence=$(mktemp)
-  - docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml | tee -a ${idempotence}
-  - >
-    tail ${idempotence}
-    | grep -q 'changed=0.*failed=0'
-    && (echo 'Idempotence test: pass' && exit 0)
-    || (echo 'Idempotence test: fail' && exit 1)
-
-
+# yamllint disable rule:line-length
 notifications:
   slack:
     secure: YWeOcfHylg3TwNoc8fnqeGf8J9jl5D3QbFWrMbFHgY61J/qOyCp/nLVQfEyVFIWdEgS8MsmDGP72CnUCGEw4Yb0g9eVWxbyrbweuOgCBrQxqF56mpaJGxexu9iu0FbdJXAjmi6iDvw/RWj9xAUysGowF3NneeH9Yi+ygFgjEI+/3+DBX4fi5qRWuwLqAfUUc+VIloK+MLNe8reqXonoT0p8swuHDfA5LYRl2mwpjHPlTa0GdKYOc7qoRoY0RlTcT2s7iCptDhI/AFylQWvJzk13EvSKI8eAcF8DHL02QV6UOQVKfHYYyY4HA7o3eO7X3RT9AZFccWbjwwhmsgClr2CAoOj+60HMCCCQuTcDQlxFP571EaKyNAb6Wctyce0pAauM9na+YdnjLkWVn8VnxzdfdhP/JSncPG80B9iombLGgiFwWAaoSJip3NY2IVSjRVX2Ck/Otm0+dzeX9GJ5LhywRbkGDRWew7AEa5RmRaVezDSrn4ydxZ05+KOCHKY++3PwnscuP0gUQhlZtKuj5fceebqVYOTmggdtbla0XinXSfxayHSKurI470ZcE5Jqeu6twukepAdpe92SDeH2ACvOEUDPcQ+AJ8/FEYXFaFq7g/QFnwwCZlZI36Aops+J7ObE8Mnq+V1YkiJvSXVgklyWqP2awZOls1Zs/k1fOpmc=
+# yamllint enable rule:line-length

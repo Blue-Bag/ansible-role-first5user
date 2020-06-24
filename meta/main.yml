@@ -6,12 +6,12 @@ galaxy_info:
   license: "license (BSD, MIT)"
   min_ansible_version: 1.4
   platforms:
-  - name: Ubuntu
-    versions:
-    - all
-  - name: Debian
-    versions:
-    - all
-  categories:
-  - networking
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+  galaxy_tags:
+    - networking
 dependencies: []

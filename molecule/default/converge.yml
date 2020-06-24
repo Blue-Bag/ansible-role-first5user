@@ -14,7 +14,7 @@
     - name: Install openssl
       apt:
         name: openssh-client
-        update_cache: yes
+        update_cache: true
         cache_valid_time: 86400
 
   roles:

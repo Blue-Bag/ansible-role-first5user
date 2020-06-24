@@ -4,8 +4,8 @@
 - name: check that a password has been set
   assert:
     that:
-      - first5user_root_password
-      - first5user_ansible_password
+      - first5user_root_password is defined
+      - first5user_ansible_password is defined
       # - first5user_root_password in hostvars[inventory_hostname]
       # - first5user_ansible_password in hostvars[inventory_hostname]
   tags: ['check_vars']

@@ -1,0 +1,21 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  vars:
+    first5user_root_password: 'wzqdxXdXgWKp+RXaxe8UDy'
+    first5user_ansible_password: 'wzqdxXdXgWKp+RXaxe8UDy'
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=true cache_valid_time=1200
+      when: ansible_os_family == 'Debian'
+      changed_when: false
+    - name: Install openssl
+      apt:
+        name: openssh-client
+        update_cache: yes
+        cache_valid_time: 86400
+
+  roles:
+    - role: ansible-role-first5user

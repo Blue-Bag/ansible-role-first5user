@@ -14,16 +14,16 @@
     generate_ssh_key: no
     update_password: on_create
     comment: 'created by ansible'
-  with_items: '{{first5user_ssh_users}}'
+  with_items: '{{ first5user_ssh_users }}'
 
 - name: Setup other users | authorized key upload
   authorized_key:
     user:  "{{ item.0.username }}"
     key: "{{ lookup('file', item.1.keyfile) }}"
-    state: "{{ item.1.state | default('present')}}"
+    state: "{{ item.1.state | default('present') }}"
     manage_dir: yes
   with_subelements:
-    - "{{ first5user_ssh_users}}"
+    - "{{ first5user_ssh_users }}"
     - authorized
   become: true
   tags: [user,user_ssh_keys]
@@ -36,8 +36,8 @@
     state: present
     validate: 'visudo -cf %s'
     insertafter: EOF
-  with_items: '{{first5user_ssh_users}}'
-  when: item.use_sudo == True
+  with_items: '{{ first5user_ssh_users }}'
+  when: item.use_sudo | bool
 
 
 - name: Add other users to the sudoers not requiring tty.
@@ -47,4 +47,4 @@
     line: "Defaults:{{ item.username }}  !requiretty"
     state: present
     validate: 'visudo -cf %s'
-  with_items: '{{first5user_ssh_users}}'
+  with_items: '{{ first5user_ssh_users }}'

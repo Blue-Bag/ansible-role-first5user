@@ -11,12 +11,12 @@
     dest: "/root/.bashrc"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
-    backup: yes
+    backup: true
   become: true
   with_items:
-     - {regexp: "^export HISTTIMEFORMAT", line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'}
-     - {regexp: "^HISTCONTROL=", line: 'HISTCONTROL=ignoreboth:erasedups'}
-  tags: [user,ssh_bash]
+    - {regexp: "^export HISTTIMEFORMAT", line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'}
+    - {regexp: "^HISTCONTROL=", line: 'HISTCONTROL=ignoreboth:erasedups'}
+  tags: [user, ssh_bash]
 
 
 - name: Add/remove required groups
@@ -68,7 +68,7 @@
     group: "{{ first5user_admin_group }}"
     groups: "{{ first5user_ansible_user_groups | join(',') }}"
     shell: "{{ first5user_default_shell }}"
-    generate_ssh_key: yes
+    generate_ssh_key: true
     ssh_key_bits: 2048
     ssh_key_file: .ssh/id_rsa
     update_password: on_create
@@ -90,8 +90,8 @@
     group: "{{ first5user_admin_group }}"
     mode: 0644
   with_items:
-     - { src: 'bashrc_skel.j2', dest: '.bashrc'}
-     - { src: 'bash_profile.j2', dest: '.bash_profile'}
+    - {src: 'bashrc_skel.j2', dest: '.bashrc'}
+    - {src: 'bash_profile.j2', dest: '.bash_profile'}
   tags: common
   when: ansible_os_family == 'Debian'
 
@@ -102,7 +102,7 @@
     state: "{{ item.state | default('present') }}"
   with_items: "{{ first5user_public_ssh_keys }}"
   become: true
-  tags: [user,user_ssh_keys]
+  tags: [user, user_ssh_keys]
 
 - name: create users ssh directory
   file:
@@ -164,7 +164,7 @@
     name: vagrant
     shell: /bin/bash
     group: "{{ first5user_admin_group }}"
-    append: yes
+    append: true
   when: inventory_hostname in groups['local']
 
 # might be better to create these in a sudoers.d folder
@@ -173,7 +173,7 @@
   lineinfile:
     dest: /etc/sudoers
     regexp: "^{{ first5user_ansible_username }}"
-    line: "{{ first5user_ansible_username }} ALL=(ALL) NOPASSWD: ALL"
+    line: "{{ first5user_ansible_username }} ALL=(ALL) falsePASSWD: ALL"
     state: present
     validate: 'visudo -cf %s'
 

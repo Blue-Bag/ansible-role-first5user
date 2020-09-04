@@ -31,6 +31,7 @@
 - name: Sudoers | update sudoers file and validate
   lineinfile:
     dest: /etc/sudoers
+    mode: preserve
     regexp: '^{{ item.username }}'
     line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
     state: present
@@ -43,6 +44,7 @@
 - name: Add other users to the sudoers not requiring tty.
   lineinfile:
     dest: /etc/sudoers
+    mode: preserve
     regexp: "^Defaults:{{  item.username }}"
     line: "Defaults:{{ item.username }}  !requiretty"
     state: present

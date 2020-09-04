@@ -12,6 +12,7 @@
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     backup: true
+    mode: preserve
   become: true
   with_items:
     - {regexp: "^export HISTTIMEFORMAT", line: 'export HISTTIMEFORMAT="%d/%m/%y %T "'}
@@ -44,6 +45,7 @@
     regexp: "^PS1="
     line: PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
     backup: true
+    mode: preserve
   become: true
   tags: common
   when: ansible_os_family == 'Debian'
@@ -53,6 +55,7 @@
     src: bashrc_skel.j2
     dest: /etc/skel/.bashrc
     backup: true
+    mode: 0644
   tags: common
   when: ansible_os_family == 'Debian'
 
@@ -176,6 +179,7 @@
     line: "{{ first5user_ansible_username }} ALL=(ALL) NOPASSWD: ALL"
     state: present
     validate: 'visudo -cf %s'
+    mode: preserve
 
 - name: Add Ansible user to the sudoers not requiring tty.
   lineinfile:
@@ -184,3 +188,4 @@
     line: "Defaults:{{ first5user_ansible_username }}  !requiretty"
     state: present
     validate: 'visudo -cf %s'
+    mode: preserve

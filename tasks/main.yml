@@ -1,18 +1,23 @@
 ---
+
 # we may run first5-user as part of an initial provision
 # so as a last task in the role we set a parameter to tell us it has run
 # we only run the tasks if the parameter hasn't been set (run already this play)
 
-- include: init.yml
+- name: include init tasks
+  include_tasks: init.yml
   when: first5user_ran is not defined
 
-- include: user.yml
+- name: set up user
+  include_tasks: user.yml
   when: first5user_ran is not defined
 
-- include: otherusers.yml
+- name: setup other users
+  include_tasks: otherusers.yml
   when: first5user_ran is not defined and (first5user_ssh_users | length > 0)
 
-- include: root_sshkey.yml
+- name: create root keys
+  include_tasks: root_sshkey.yml
 
 - name: Record that we have already run User setup for this host
   set_fact:

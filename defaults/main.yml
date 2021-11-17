@@ -54,3 +54,10 @@ first5user_ssh_users: []
 #      password: 'jhghkj'
 #      use_sudo: True
 #      key: "{{ inventory_dir + '/files/sshkeys/joebloggs.pub' }}"
+
+first5user_export_options:
+  - name: 'QUOTING_STYLE'
+    value: 'literal'
+    comment: |
+     # Fix adding quotes around names with spaces
+     # https://unix.stackexchange.com/questions/258679/why-is-ls-suddenly-wrapping-items-with-spaces-in-single-quotes

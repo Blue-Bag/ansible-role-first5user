@@ -39,3 +39,7 @@ alias l='ls $LS_OPTIONS -lA'
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
+
+{% for export in first5user_export_options %}
+export {{ export.name }}={{ export.value }}
+{% endif%}

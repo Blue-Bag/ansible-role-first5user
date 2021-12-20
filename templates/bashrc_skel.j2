@@ -17,7 +17,7 @@ umask {{ default_umask }}
 
 {% for export in first5user_export_options %}
 export {{ export.name }}={{ export.value }}
-{% endif%}
+{% endfor %}
 
 
 # don't put duplicate lines or lines starting with space in the history.

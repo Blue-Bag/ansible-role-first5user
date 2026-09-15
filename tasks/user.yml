@@ -31,12 +31,12 @@
 - name: Install sudo package | Debian
   apt:
     name: sudo
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install sudo package | RedHat
   yum:
     name: sudo
-  when: ansible_os_family == 'RedHat'
+  when: ansible_facts['os_family'] == 'RedHat'
 
 
 - name: common | configure prompt
@@ -48,7 +48,7 @@
     mode: 0644
   become: true
   tags: common
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: common | copy bash config files
   template:
@@ -57,7 +57,7 @@
     backup: true
     mode: 0644
   tags: common
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 # TODO: Make idempotent
 # Also may best set shell to sh as low resource use and basic for ansible
@@ -96,7 +96,7 @@
     - {src: 'bashrc_skel.j2', dest: '.bashrc'}
     - {src: 'bash_profile.j2', dest: '.bash_profile'}
   tags: common
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Set up authorized_keys for the ansible user
   authorized_key:
@@ -189,3 +189,12 @@
     state: present
     validate: 'visudo -cf %s'
     mode: 0440
+
+- name: Setup Vim environment
+  template:
+    src: vimrc.j2
+    dest: /home/{{ first5user_ansible_username }}/.vimrc
+    backup: true
+    mode: 0644
+  tags: common
+  when: ansible_facts['os_family'] == 'Debian' 

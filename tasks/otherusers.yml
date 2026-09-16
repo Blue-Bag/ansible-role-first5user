@@ -15,6 +15,9 @@
     update_password: on_create
     comment: 'created by ansible'
   with_items: '{{ first5user_ssh_users }}'
+  loop_control:
+    label: "{{ item.username }}"
+  no_log: true
 
 - name: Setup other users | authorized key upload
   authorized_key:
@@ -25,28 +28,54 @@
   with_subelements:
     - "{{ first5user_ssh_users }}"
     - authorized
+  loop_control:
+    label: "{{ item.0.username }} -> {{ item.1.name }}"
   become: true
   tags: [user, user_ssh_keys]
 
-- name: Sudoers | update sudoers file and validate
+- name: Sudoers | remove legacy per-user entry from /etc/sudoers
   lineinfile:
     dest: /etc/sudoers
     mode: 0440
-    regexp: '^{{ item.username }}'
-    line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
-    state: present
+    regexp: '^{{ item.username | regex_escape }}\s'
+    state: absent
     validate: 'visudo -cf %s'
-    insertafter: EOF
   with_items: '{{ first5user_ssh_users }}'
+  loop_control:
+    label: "{{ item.username }}"
+
+- name: Sudoers | remove legacy per-user Defaults from /etc/sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    mode: 0440
+    regexp: '^Defaults:{{ item.username | regex_escape }}\s'
+    state: absent
+    validate: 'visudo -cf %s'
+  with_items: '{{ first5user_ssh_users }}'
+  loop_control:
+    label: "{{ item.username }}"
+
+# sudo ignores files in sudoers.d whose name contains a '.'
+- name: Sudoers | per-user drop-in file
+  copy:
+    dest: "/etc/sudoers.d/{{ item.username | replace('.', '-') }}"
+    content: |
+      {{ item.username }} ALL=(ALL) NOPASSWD: ALL
+      Defaults:{{ item.username }} !requiretty
+    owner: root
+    group: root
+    mode: 0440
+    validate: 'visudo -cf %s'
+  with_items: '{{ first5user_ssh_users }}'
+  loop_control:
+    label: "{{ item.username }}"
   when: item.use_sudo | bool
 
-
-- name: Add other users to the sudoers not requiring tty.
-  lineinfile:
-    dest: /etc/sudoers
-    mode: 0440
-    regexp: "^Defaults:{{  item.username }}"
-    line: "Defaults:{{ item.username }}  !requiretty"
-    state: present
-    validate: 'visudo -cf %s'
+- name: Sudoers | remove drop-in for users without sudo
+  file:
+    path: "/etc/sudoers.d/{{ item.username | replace('.', '-') }}"
+    state: absent
   with_items: '{{ first5user_ssh_users }}'
+  loop_control:
+    label: "{{ item.username }}"
+  when: not (item.use_sudo | bool)

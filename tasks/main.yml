@@ -13,8 +13,12 @@
   when: first5user_ran is not defined
 
 - name: setup other users
-  include_tasks: otherusers.yml
+  include_tasks:
+    file: otherusers.yml
+    apply:
+      tags: [otherusers]
   when: first5user_ran is not defined and (first5user_ssh_users | length > 0)
+  tags: [otherusers]
 
 - name: create root keys
   include_tasks: root_sshkey.yml

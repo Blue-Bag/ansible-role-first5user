@@ -1,15 +1,15 @@
 ---
-# NOT TESTED YET
-
-- name: Add users | create users, shell, home dirs
+- name: Add users | create or remove users, shell, home dirs
   user:
     name: "{{ item.username }}"
-    password: "{{ item.password }}"
-    # generate new password
+    password: "{{ item.password | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+    remove: "{{ item.remove | default(false) }}"
+    force: "{{ item.remove | default(false) }}"
     createhome: true
     append: true
-    group: "{{ item.main_group }}"
-    groups: "{{ item.groups | join(',') }}"
+    group: "{{ item.main_group | default(omit) }}"
+    groups: "{{ item.groups | default([]) | join(',') }}"
     shell: "{{ first5user_default_shell }}"
     generate_ssh_key: false
     update_password: on_create
@@ -28,6 +28,8 @@
   with_subelements:
     - "{{ first5user_ssh_users }}"
     - authorized
+    - skip_missing: true
+  when: item.0.state | default('present') == 'present'
   loop_control:
     label: "{{ item.0.username }} -> {{ item.1.name }}"
   become: true
@@ -69,13 +71,15 @@
   with_items: '{{ first5user_ssh_users }}'
   loop_control:
     label: "{{ item.username }}"
-  when: item.use_sudo | bool
+  when:
+    - item.state | default('present') == 'present'
+    - item.use_sudo | default(false) | bool
 
-- name: Sudoers | remove drop-in for users without sudo
+- name: Sudoers | remove drop-in for absent or non-sudo users
   file:
     path: "/etc/sudoers.d/{{ item.username | replace('.', '-') }}"
     state: absent
   with_items: '{{ first5user_ssh_users }}'
   loop_control:
     label: "{{ item.username }}"
-  when: not (item.use_sudo | bool)
+  when: not (item.state | default('present') == 'present' and item.use_sudo | default(false) | bool)

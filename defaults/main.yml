@@ -45,6 +45,8 @@ first5user_append_groups: true
 first5user_ssh_createroot: false
 first5user_ssh_comment: 'root@ansible-server'
 
+# state defaults to 'present'. Set state: absent to decommission an account;
+# add remove: true to delete its home directory as well.
 first5user_ssh_users: []
 #    - name: Joe Bloggs
 #      username: joebloggs
@@ -54,7 +56,15 @@ first5user_ssh_users: []
 #        -  www-data
 #      password: 'jhghkj'
 #      use_sudo: True
-#      key: "{{ inventory_dir + '/files/sshkeys/joebloggs.pub' }}"
+#      state: present
+#      authorized:
+#        - name: 'joebloggs'
+#          keyfile: "{{ inventory_dir + '/files/sshkeys/joebloggs.pub' }}"
+#          state: 'present'
+#    - name: Old Contractor
+#      username: oldcontractor
+#      state: absent
+#      remove: true
 
 first5user_export_options:
   - name: 'QUOTING_STYLE'
